@@ -9,16 +9,26 @@ import lombok.RequiredArgsConstructor;
 public class ScoreBoardService {
     private final ScoreBoardRepository repository;
 
-    void initGame(Team home, Team away) {
-        // todo: add implementation for initializing new game process
+    ScoreBoardId initEmptyScoreBoard() {
+        ScoreBoard scoreBoard = new ScoreBoard();
+        repository.save(scoreBoard);
+        return scoreBoard.getScoreBoardId();
     }
 
-    ScoreBoard updateGameResult(ScoreBoardId scoreBoardId, Game game) {
+    void initGameForScoreBoard(ScoreBoardId scoreBoardId, Team home, Team away) {
+        ScoreBoard scoreBoard = repository.get(scoreBoardId);
+        if (scoreBoard == null)
+            throw new IllegalStateException(STR."ScoreBoard of id \{scoreBoardId} does not exist!"); // 404 Http Status
+        scoreBoard.startNewGame(home, away);
+        repository.save(scoreBoard);
+    }
+
+    void updateGameResultOnScoreBoard(ScoreBoardId scoreBoardId, Game game) {
         // todo: add implementation for updating ongoing game result
-        return null;
+
     }
 
-    void finishGame(ScoreBoardId scoreBoardId, GameId gameId) {
+    void finishGameOnScoreBoard(ScoreBoardId scoreBoardId, GameId gameId) {
         // todo: add implementation for finishing game
     }
 }

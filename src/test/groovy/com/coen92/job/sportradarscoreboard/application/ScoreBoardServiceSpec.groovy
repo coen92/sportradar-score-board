@@ -1,8 +1,7 @@
 package com.coen92.job.sportradarscoreboard.application
 
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.Game
-import com.coen92.job.sportradarscoreboard.domain.scoreboard.GameId
-import com.coen92.job.sportradarscoreboard.domain.scoreboard.ScoreBoard
+import com.coen92.job.sportradarscoreboard.domain.scoreboard.ScoreBoardId
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.Team
 import com.coen92.job.sportradarscoreboard.infrastructure.InMemoryScoreBoardRepositoryImpl
 import com.coen92.job.sportradarscoreboard.infrastructure.ScoreBoardRepository
@@ -17,13 +16,24 @@ class ScoreBoardServiceSpec extends Specification {
     ScoreBoardService service = new  ScoreBoardService(repository)
 
 
+    def 'should init empty scoreboard'() {
+        when: 'empty score board is initialized'
+            def scoreBoardId = service.initEmptyScoreBoard()
+
+        then: "score board with no games exists"
+            def result = repository.get(scoreBoardId)
+            // todo: assert score board exists and it's empty (no games)
+
+    }
+
     def 'should init start game for home team and away team'() {
         given: 'home and away teams'
+            var scoreBoardId = new ScoreBoardId(UUID.randomUUID())
             var homeTeam = new Team()
             var awayTeam = new Team()
 
         when: 'game being initialized for teams'
-            def scoreBoardId = service.initGame(homeTeam, awayTeam) // todo: probably Game instead teams...?
+            service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
 
         then: "new game with initial score is started"
             def result = repository.get(scoreBoardId)
@@ -33,11 +43,12 @@ class ScoreBoardServiceSpec extends Specification {
 
     def 'should add brand new game to score board'() {
         given: 'home and away teams'
+            var scoreBoardId = new ScoreBoardId(UUID.randomUUID())
             var homeTeam = new Team()
             var awayTeam = new Team()
 
         when: 'game being initialized for teams'
-            def scoreBoardId = service.initGame(homeTeam, awayTeam)
+            service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
 
         then: "initial score is added to scoreboard"
             def result = repository.get(scoreBoardId)
@@ -46,16 +57,17 @@ class ScoreBoardServiceSpec extends Specification {
 
     def 'should update score for home team and away team'() {
         given: 'ongoing game on scoreboard'
+            var scoreBoardId = new ScoreBoardId(UUID.randomUUID())
             var homeTeam = new Team()
             var awayTeam = new Team()
-            def scoreBoardId = service.initGame(homeTeam, awayTeam)
+            service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
             var game = new Game(homeTeam, awayTeam) // todo: here team scores should have updated values
 
             def initial = repository.get(scoreBoardId)
             // todo: assertion game score is 0:0
 
         when: 'this game\'s score is being updated'
-            service.updateGameResult(scoreBoardId, game)
+            service.updateGameResultOnScoreBoard(scoreBoardId, game)
 
         then: "new score for this game is set"
             def updated = repository.get(scoreBoardId)
@@ -64,16 +76,17 @@ class ScoreBoardServiceSpec extends Specification {
 
     def 'should remove finished game from score board'() {
         given: 'ongoing game on scoreboard'
+            var scoreBoardId = new ScoreBoardId(UUID.randomUUID())
             var homeTeam = new Team()
             var awayTeam = new Team()
-            def scoreBoardId = service.initGame(homeTeam, awayTeam)
+            service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
             var gameId = new Game(homeTeam, awayTeam).getGameId()
 
             def initial = repository.get(scoreBoardId)
             // todo: assertion game exists
 
         when: 'game is being finished'
-            service.finishGame(scoreBoardId, gameId)
+            service.finishGameOnScoreBoard(scoreBoardId, gameId)
 
         then: "game is removed from scoreboard"
             def updated = repository.get(scoreBoardId)

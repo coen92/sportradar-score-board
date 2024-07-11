@@ -9,4 +9,9 @@ public class InMemoryScoreBoardRepositoryImpl implements ScoreBoardRepository {
         // todo: add implementation for getting data from memory storage
         return null;
     }
+
+    @Override
+    public void save(ScoreBoard scoreBoard) {
+        // todo: add implementation for saving score board in memory storage
+    }
 }
