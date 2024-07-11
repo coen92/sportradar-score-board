@@ -15,12 +15,13 @@ public class ScoreBoardService {
         return scoreBoard.getScoreBoardId();
     }
 
-    void initGameForScoreBoard(ScoreBoardId scoreBoardId, Team home, Team away) {
+    GameId initGameForScoreBoard(ScoreBoardId scoreBoardId, Team home, Team away) {
         ScoreBoard scoreBoard = repository.get(scoreBoardId);
         if (scoreBoard == null)
             throw new IllegalStateException(STR."ScoreBoard of id \{scoreBoardId} does not exist!"); // 404 Http Status
-        scoreBoard.startNewGame(home, away);
+        var startedGameId = scoreBoard.startNewGame(home, away);
         repository.save(scoreBoard);
+        return startedGameId;
     }
 
     void updateGameResultOnScoreBoard(ScoreBoardId scoreBoardId, Game game) {
