@@ -1,31 +1,33 @@
 package com.coen92.job.sportradarscoreboard.domain.scoreboard;
 
-import lombok.Setter;
+import lombok.Getter;
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public record Game(Team home, Team away) {
+public record Game(Team home, Team away, GameStatus gameStatus, Integer homeScore, Integer awayScore) {
     private static GameId gameId;
-    @Setter
-    private static GameStatus gameStatus;
+    @Getter
+    private final static Instant startedAt = Instant.now();
 
-    public Game {
+    public Game(Team home, Team away) {
+        this(home, away, GameStatus.Started, 0, 0);
         gameId = new GameId(UUID.randomUUID());
-        gameStatus = GameStatus.Started;
-        // todo: add new score initialization with 0:0
     }
 
     public GameId getGameId() {
         return gameId;
     }
 
+    public Map<TeamId, Integer> getCurrentScore() {
+        return Map.of(home.teamId(), homeScore, away.teamId(), awayScore);
+    }
+
     private enum GameStatus {
         Started, Ongoing, Finished
     }
-
-    // todo: probably getting some actual score of the game (score as double element Map<TeamId, Integer>)?
-    //  and current status of the game: Ongoing, Finished...
 
     // game is the same game if playing the same teams (with consideration of home/away place)
     @Override

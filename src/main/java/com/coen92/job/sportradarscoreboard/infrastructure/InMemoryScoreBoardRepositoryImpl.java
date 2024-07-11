@@ -3,15 +3,19 @@ package com.coen92.job.sportradarscoreboard.infrastructure;
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.ScoreBoard;
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.ScoreBoardId;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InMemoryScoreBoardRepositoryImpl implements ScoreBoardRepository {
+    private Map<ScoreBoardId, ScoreBoard> inMemory = new HashMap<>();
+
     @Override
     public ScoreBoard get(ScoreBoardId scoreBoardId) {
-        // todo: add implementation for getting data from memory storage
-        return null;
+        return inMemory.get(scoreBoardId);
     }
 
     @Override
     public void save(ScoreBoard scoreBoard) {
-        // todo: add implementation for saving score board in memory storage
+        inMemory.put(scoreBoard.getScoreBoardId(), scoreBoard);
     }
 }
