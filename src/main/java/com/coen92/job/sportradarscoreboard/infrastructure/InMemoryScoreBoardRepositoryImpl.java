@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InMemoryScoreBoardRepositoryImpl implements ScoreBoardRepository {
-    private Map<ScoreBoardId, ScoreBoard> inMemory = new HashMap<>();
+    private final Map<ScoreBoardId, ScoreBoard> inMemory = new HashMap<>();
 
     @Override
     public ScoreBoard get(ScoreBoardId scoreBoardId) {
@@ -17,5 +17,9 @@ public class InMemoryScoreBoardRepositoryImpl implements ScoreBoardRepository {
     @Override
     public void save(ScoreBoard scoreBoard) {
         inMemory.put(scoreBoard.getScoreBoardId(), scoreBoard);
+    }
+
+    public void clean() {
+        inMemory.clear();
     }
 }

@@ -1,28 +1,48 @@
 package com.coen92.job.sportradarscoreboard.domain.scoreboard;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public record Game(Team home, Team away, GameStatus gameStatus, Integer homeScore, Integer awayScore) {
-    private static GameId gameId;
-    @Getter
-    private final static Instant startedAt = Instant.now();
+@Getter
+@ToString
+public final class Game {
+    private final GameId gameId;
+    private final Team home;
+    private final Team away;
+    private GameStatus gameStatus;
+    private Integer homeScore;
+    private Integer awayScore;
+    private final Instant startedAt = Instant.now();
+    private Instant modifiedAt = Instant.now();
 
     public Game(Team home, Team away) {
         this(home, away, GameStatus.Started, 0, 0);
-        gameId = new GameId(UUID.randomUUID());
     }
 
-    public GameId getGameId() {
-        return gameId;
+    private Game(Team home, Team away, GameStatus gameStatus, Integer homeScore, Integer awayScore) {
+        this.gameId = new GameId(UUID.randomUUID());
+        this.home = home;
+        this.away = away;
+        this.gameStatus = gameStatus;
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
     }
 
     public Map<TeamId, Integer> getCurrentScore() {
         return Map.of(home.teamId(), homeScore, away.teamId(), awayScore);
+    }
+
+    public Game updateScore(Integer homeTeamScore, Integer awayTeamScore) {
+        homeScore = homeTeamScore;
+        awayScore = awayTeamScore;
+        gameStatus = GameStatus.Ongoing;
+        modifiedAt = Instant.now();
+        return this;
     }
 
     private enum GameStatus {
@@ -45,4 +65,5 @@ public record Game(Team home, Team away, GameStatus gameStatus, Integer homeScor
         result = 31 * result + Objects.hashCode(away);
         return result;
     }
+
 }
