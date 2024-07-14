@@ -24,9 +24,12 @@ public class ScoreBoardService {
         return startedGameId;
     }
 
-    void updateGameResultOnScoreBoard(ScoreBoardId scoreBoardId, Game game) {
-        // todo: add implementation for updating ongoing game result
-
+    void updateGameResultOnScoreBoard(ScoreBoardId scoreBoardId, GameId gameId, Integer homeTeamScore, Integer awayTeamScore) {
+        ScoreBoard scoreBoard = repository.get(scoreBoardId);
+        if (scoreBoard == null)
+            throw new IllegalStateException(STR."ScoreBoard of id \{scoreBoardId} does not exist!"); // 404 Http Status
+        scoreBoard.updateGameScore(gameId, homeTeamScore, awayTeamScore);
+        repository.save(scoreBoard);
     }
 
     void finishGameOnScoreBoard(ScoreBoardId scoreBoardId, GameId gameId) {
