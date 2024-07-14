@@ -3,6 +3,7 @@ package com.coen92.job.sportradarscoreboard.domain.scoreboard;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +46,17 @@ public final class Game {
         return this;
     }
 
-    private enum GameStatus {
+    public Game endGame() {
+        modifiedAt = Instant.now();
+        gameStatus = GameStatus.Finished;
+        return this;
+    }
+
+    public long getCurrentGameDuration() {
+        return Duration.between(startedAt, Instant.now()).toMinutes();
+    }
+
+    enum GameStatus {
         Started, Ongoing, Finished
     }
 
