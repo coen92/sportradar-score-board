@@ -5,6 +5,7 @@ import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameDurat
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +13,12 @@ import java.util.UUID;
 
 
 @Getter
-public class ScoreBoard {
+public class ScoreBoardAggregate {
     private static final int GAME_DURATION_TO_FINISH_IN_MINUTES = 0; // should be 90 in original implementation + injection of @Bean Clock
     private final ScoreBoardId scoreBoardId;
     private final ScoreBoardGames scoreBoardGames;
 
-    public ScoreBoard() {
+    public ScoreBoardAggregate() {
         scoreBoardId = new ScoreBoardId(UUID.randomUUID());
         this.scoreBoardGames = new ScoreBoardGames();
     }
@@ -41,6 +42,10 @@ public class ScoreBoard {
         if (game.getCurrentGameDuration() < GAME_DURATION_TO_FINISH_IN_MINUTES)
             throw new GameDurationConstraintToFinishException(GAME_DURATION_TO_FINISH_IN_MINUTES);
         scoreBoardGames.removeGame(game.endGame());
+    }
+
+    public Object displayGamesWithResult() {
+        return scoreBoardGames.getOrdered();
     }
 
     @Getter
@@ -77,6 +82,10 @@ public class ScoreBoard {
             if (game.getGameStatus() == Game.GameStatus.Finished) {
                 games.remove(game);
             }
+        }
+
+        public Object getOrdered() {
+            return Strings.EMPTY; // to fail tests before implementation
         }
     }
 }

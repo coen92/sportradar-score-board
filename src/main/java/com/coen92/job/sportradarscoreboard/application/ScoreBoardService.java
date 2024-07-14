@@ -10,7 +10,7 @@ public class ScoreBoardService {
     private final ScoreBoardRepository repository;
 
     ScoreBoardId initEmptyScoreBoard() {
-        var scoreBoard = new ScoreBoard();
+        var scoreBoard = new ScoreBoardAggregate();
         repository.save(scoreBoard);
         return scoreBoard.getScoreBoardId();
     }
@@ -34,8 +34,13 @@ public class ScoreBoardService {
         repository.save(scoreBoard);
     }
 
+    Object getGamesSummary(ScoreBoardId scoreBoardId) {
+        var scoreBoard = findScoreBoard(scoreBoardId);
+        return scoreBoard.displayGamesWithResult();
+    }
 
-    private ScoreBoard findScoreBoard(ScoreBoardId scoreBoardId) {
+
+    private ScoreBoardAggregate findScoreBoard(ScoreBoardId scoreBoardId) {
         var scoreBoard = repository.get(scoreBoardId);
         if (scoreBoard == null)
             throw new IllegalStateException(STR."ScoreBoard of id \{scoreBoardId} does not exist!"); // 404 Http Status
