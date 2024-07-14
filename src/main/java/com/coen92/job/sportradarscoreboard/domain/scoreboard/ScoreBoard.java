@@ -1,6 +1,7 @@
 package com.coen92.job.sportradarscoreboard.domain.scoreboard;
 
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameAlreadyOnScoreBoardException;
+import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameDurationConstraintToFinishException;
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Getter
 public class ScoreBoard {
+    private static final int GAME_DURATION_TO_FINISH_IN_MINUTES = 0; // should be 90 in original implementation + injection of @Bean Clock
     private final ScoreBoardId scoreBoardId;
     private final ScoreBoardGames scoreBoardGames;
 
@@ -21,17 +23,24 @@ public class ScoreBoard {
     }
 
     public GameId startNewGame(Team home, Team away) {
-        return scoreBoardGames.initNewGame(home, away);
+        return scoreBoardGames.startGame(home, away);
     }
 
     public void updateGameScore(GameId gameId, Integer homeTeamScore, Integer awayTeamScore) {
-        var game = scoreBoardGames.getGame(gameId);
+        var game = scoreBoardGames.getGame(gameId); // todo: probably should be a part of ScoreBoardGames class
         game.updateScore(homeTeamScore, awayTeamScore);
         scoreBoardGames.addGame(game);
     }
 
     public boolean isEmpty() {
         return this.getScoreBoardGames().getGames().isEmpty();
+    }
+
+    public void finishGame(GameId gameId) {
+        var game = scoreBoardGames.getGame(gameId); // todo: probably should be a part of ScoreBoardGames class
+        if (game.getCurrentGameDuration() < GAME_DURATION_TO_FINISH_IN_MINUTES)
+            throw new GameDurationConstraintToFinishException(GAME_DURATION_TO_FINISH_IN_MINUTES);
+        scoreBoardGames.removeGame(game.endGame());
     }
 
     @Getter
@@ -43,7 +52,7 @@ public class ScoreBoard {
             this.games = new ArrayList<>();
         }
 
-        public GameId initNewGame(Team home, Team away) {
+        public GameId startGame(Team home, Team away) {
             var game = new Game(home, away);
             games.stream().filter(g -> g.equals(game))
                     .findAny()
@@ -62,6 +71,12 @@ public class ScoreBoard {
         public void addGame(Game game) {
             games.remove(game);
             games.add(game);
+        }
+
+        public void removeGame(Game game) {
+            if (game.getGameStatus() == Game.GameStatus.Finished) {
+                games.remove(game);
+            }
         }
     }
 }

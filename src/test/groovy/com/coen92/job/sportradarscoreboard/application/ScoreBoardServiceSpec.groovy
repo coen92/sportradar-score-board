@@ -1,7 +1,6 @@
 package com.coen92.job.sportradarscoreboard.application
 
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.Game
-import com.coen92.job.sportradarscoreboard.domain.scoreboard.ScoreBoardId
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.Team
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.TeamId
 import com.coen92.job.sportradarscoreboard.infrastructure.InMemoryScoreBoardRepositoryImpl
@@ -39,13 +38,13 @@ class ScoreBoardServiceSpec extends Specification {
             def gameId = service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
 
         then: 'new game with initial score is started'
-            def initGame = repository.get(scoreBoardId)
+            def startedGame = repository.get(scoreBoardId)
                 .getScoreBoardGames().games.stream()
                 .filter(game -> gameId == game.gameId)
                 .findAny()
 
-            !initGame.empty
-            def result = initGame.get()
+            !startedGame.empty
+            def result = startedGame.get()
             Game.GameStatus.Started == result.gameStatus
             homeTeamId == result.home.teamId()
             awayTeamId == result.away.teamId()
@@ -81,21 +80,24 @@ class ScoreBoardServiceSpec extends Specification {
 
     def 'should remove finished game from score board'() {
         given: 'ongoing game on scoreboard'
-            var scoreBoardId = new ScoreBoardId(UUID.randomUUID())
-            var homeTeam = new Team()
-            var awayTeam = new Team()
-            service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
-            var gameId = new Game(homeTeam, awayTeam).getGameId()
+            var scoreBoardId = service.initEmptyScoreBoard()
+            var homeTeamId = new TeamId(UUID.randomUUID())
+            var awayTeamId = new TeamId(UUID.randomUUID())
+            var homeTeam = new Team(homeTeamId, 'homeTeam')
+            var awayTeam = new Team(awayTeamId, 'awayTeam')
 
-            def initial = repository.get(scoreBoardId)
-            // todo: assertion game exists
+            def gameId = service.initGameForScoreBoard(scoreBoardId, homeTeam, awayTeam)
 
         when: 'game is being finished'
             service.finishGameOnScoreBoard(scoreBoardId, gameId)
 
         then: 'game is removed from scoreboard'
-            def updated = repository.get(scoreBoardId)
-            // todo: assertion game is not on scoreboard anymore
+            def finishedGame = repository.get(scoreBoardId)
+                    .getScoreBoardGames().games.stream()
+                    .filter(game -> gameId == game.gameId)
+                    .findAny()
+
+            finishedGame.empty
     }
 
     // todo: below two tests will impact 'then' blocks on above tests - for later implementation
