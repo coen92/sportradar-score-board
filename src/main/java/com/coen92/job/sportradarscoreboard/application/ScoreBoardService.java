@@ -1,8 +1,11 @@
 package com.coen92.job.sportradarscoreboard.application;
 
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.*;
+import com.coen92.job.sportradarscoreboard.domain.scoreboard.GameId;
 import com.coen92.job.sportradarscoreboard.infrastructure.ScoreBoardRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -34,9 +37,9 @@ public class ScoreBoardService {
         repository.save(scoreBoard);
     }
 
-    Object getGamesSummary(ScoreBoardId scoreBoardId) {
+    List<Game> getGamesSummary(ScoreBoardId scoreBoardId) {
         var scoreBoard = findScoreBoard(scoreBoardId);
-        return scoreBoard.displayGamesWithResult();
+        return scoreBoard.displayCurrentGamesWithResult();
     }
 
 

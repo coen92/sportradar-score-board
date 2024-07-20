@@ -5,9 +5,9 @@ import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameDurat
 import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.util.Strings;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,14 +44,16 @@ public class ScoreBoardAggregate {
         scoreBoardGames.removeGame(game.endGame());
     }
 
-    public Object displayGamesWithResult() {
-        return scoreBoardGames.getOrdered();
+    public List<Game> displayCurrentGamesWithResult() {
+        return scoreBoardGames.getOrderedGames();
     }
 
     @Getter
     @Setter
     private static class ScoreBoardGames {
         private List<Game> games;
+        private final Comparator<Game> highesttotalScoreComparator = new GameTotalScoreComparator().getByHighestTotalScore();
+        private final Comparator<Game> earliestStartComparator = new GameStartTimeComparator().getByEarliestStartDate();
 
         public ScoreBoardGames() {
             this.games = new ArrayList<>();
@@ -84,8 +86,9 @@ public class ScoreBoardAggregate {
             }
         }
 
-        public Object getOrdered() {
-            return Strings.EMPTY; // to fail tests before implementation
+        public List<Game> getOrderedGames() {
+            games.sort(highesttotalScoreComparator.thenComparing(earliestStartComparator));
+            return games;
         }
     }
 }
