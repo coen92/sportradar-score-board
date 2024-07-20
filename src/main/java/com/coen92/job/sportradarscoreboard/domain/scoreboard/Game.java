@@ -1,5 +1,6 @@
 package com.coen92.job.sportradarscoreboard.domain.scoreboard;
 
+import com.coen92.job.sportradarscoreboard.domain.scoreboard.exception.GameInitialisationFailureException;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -26,6 +27,8 @@ public final class Game {
     }
 
     private Game(Team home, Team away, GameStatus gameStatus, Integer homeScore, Integer awayScore) {
+        if (home.equals(away))
+            throw new GameInitialisationFailureException(home, away);
         this.gameId = new GameId(UUID.randomUUID());
         this.home = home;
         this.away = away;
@@ -38,12 +41,15 @@ public final class Game {
         return Map.of(home.teamId(), homeScore, away.teamId(), awayScore);
     }
 
-    public Game updateScore(Integer homeTeamScore, Integer awayTeamScore) {
+    public Integer getTotalScore() {
+        return this.homeScore + this.awayScore;
+    }
+
+    public void updateScore(Integer homeTeamScore, Integer awayTeamScore) {
         homeScore = homeTeamScore;
         awayScore = awayTeamScore;
         gameStatus = GameStatus.Ongoing;
         modifiedAt = Instant.now();
-        return this;
     }
 
     public Game endGame() {
