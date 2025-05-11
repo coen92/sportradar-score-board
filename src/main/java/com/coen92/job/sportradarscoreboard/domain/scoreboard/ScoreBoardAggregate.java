@@ -28,7 +28,7 @@ public class ScoreBoardAggregate {
     }
 
     public void updateGameScore(GameId gameId, Integer homeTeamScore, Integer awayTeamScore) {
-        var game = scoreBoardGames.getGame(gameId); // todo: probably should be a part of ScoreBoardGames class
+        var game = scoreBoardGames.getGame(gameId);
         game.updateScore(homeTeamScore, awayTeamScore);
         scoreBoardGames.addGame(game);
     }
@@ -38,7 +38,7 @@ public class ScoreBoardAggregate {
     }
 
     public void finishGame(GameId gameId) {
-        var game = scoreBoardGames.getGame(gameId); // todo: probably should be a part of ScoreBoardGames class
+        var game = scoreBoardGames.getGame(gameId);
         if (game.getCurrentGameDuration() < GAME_DURATION_TO_FINISH_IN_MINUTES)
             throw new GameDurationConstraintToFinishException(GAME_DURATION_TO_FINISH_IN_MINUTES);
         scoreBoardGames.removeGame(game.endGame());
